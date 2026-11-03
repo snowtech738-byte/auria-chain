@@ -1,0 +1,32 @@
+{
+  "name": "auria-chain",
+  "version": "0.1.0",
+  "description": "SDK for AI agents to pay other AI agents over plain HTTP via the x402 protocol.",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "keywords": [
+    "x402",
+    "agent-payments",
+    "ai-agents",
+    "usdc",
+    "base"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@x402/core": "^2.29.0",
+    "@x402/evm": "^2.29.0",
+    "@x402/express": "^2.29.0",
+    "@x402/fetch": "^2.29.0",
+    "viem": "^2.57.10"
+  },
+  "peerDependencies": {
+    "express": "^5.0.0"
+  }
+}

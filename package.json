@@ -1,0 +1,14 @@
+{
+  "name": "auria-chain-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "examples/*"
+  ],
+  "scripts": {
+    "seller": "npm run seller --workspace examples/demo",
+    "buyer": "npm run buyer --workspace examples/demo"
+  }
+}
