@@ -35,15 +35,55 @@ app.listen(4021);
 ```js
 import { createBuyer } from "auria-chain";
 
-const buyer = createBuyer({ privateKey: process.env.BUYER_PRIVATE_KEY });
+const buyer = createBuyer({
+  privateKey: process.env.BUYER_PRIVATE_KEY,
+  maxPricePerPayment: "$0.10", // refuse to pay a seller asking for more than this
+});
 
 const result = await buyer.pay("http://localhost:4021/agent/summarize", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ text: "..." }),
+  timeoutMs: 30_000, // default; raise for a seller that does slow work before responding
 });
 
 if (result.paymentStatus === "settled") console.log(result.body);
+```
+
+### Spend cap
+
+An autonomous buyer agent should never silently pay whatever a seller's 402
+challenge happens to ask for. `maxPricePerPayment` is enforced by the
+underlying x402 client itself (not a bolt-on check here) — if you omit it,
+the client's own default of **$1/payment** still applies, so a buyer is
+never uncapped by accident.
+
+### Errors
+
+Every failure `createSellerMiddleware`/`createBuyer` can throw is an
+`AuriaError` with a stable `.code` you can branch on, instead of matching
+`.message` text:
+
+| code | thrown by | meaning |
+| --- | --- | --- |
+| `MISSING_PAY_TO`, `MISSING_BASE_URL`, `MISSING_ROUTES`, `MISSING_ROUTE_PRICE` | `createSellerMiddleware` | invalid seller config |
+| `MISSING_PRIVATE_KEY` | `createBuyer` | invalid buyer config |
+| `UNKNOWN_NETWORK` | either | unrecognized network name |
+| `PRICE_EXCEEDS_MAX` | `buyer.pay()` | seller's price exceeded `maxPricePerPayment` |
+| `PAYMENT_TIMEOUT` | `buyer.pay()` | request exceeded `timeoutMs` |
+| `PAYMENT_FAILED` | `buyer.pay()` | anything else (see `error.cause`) |
+
+```js
+import { AuriaError } from "auria-chain";
+
+try {
+  await buyer.pay(url, options);
+} catch (error) {
+  if (error instanceof AuriaError && error.code === "PRICE_EXCEEDS_MAX") {
+    // the seller is asking for more than this agent is willing to pay — skip it
+  }
+  throw error;
+}
 ```
 
 ## Networks
@@ -56,3 +96,13 @@ or a raw `"eip155:<id>"` CAIP-2 id for anything else.
 No production facilitator config (Coinbase CDP) — both sides use the public
 `x402.org/facilitator` testnet facilitator by default. Pass `facilitatorUrl`
 to `createSellerMiddleware` once there's a production facilitator to point at.
+
+## Tests
+
+```
+npm test
+```
+
+Covers config validation and construction for both `createSellerMiddleware`
+and `createBuyer`. Does not hit the network — the demo in `examples/demo` is
+what's run against a live facilitator.

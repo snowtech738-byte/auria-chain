@@ -11,6 +11,9 @@
     "src",
     "README.md"
   ],
+  "scripts": {
+    "test": "node --test"
+  },
   "keywords": [
     "x402",
     "agent-payments",
