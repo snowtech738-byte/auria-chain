@@ -16,6 +16,7 @@ This is an npm workspaces monorepo — `npm install` at the root links
 
 ## Status
 
-Q1 demo stage. Testnet only (Base Sepolia), via the public x402.org
-facilitator. Not yet published to npm. No token — see the founder dossier
-for why that's deliberate.
+Published on npm as [`auria-chain`](https://www.npmjs.com/package/auria-chain)
+(`npm install auria-chain`). Testnet only (Base Sepolia) via the public
+x402.org facilitator — production (Coinbase CDP facilitator, mainnet) is
+not wired up yet. No token — this is deliberate; see the founder dossier.
